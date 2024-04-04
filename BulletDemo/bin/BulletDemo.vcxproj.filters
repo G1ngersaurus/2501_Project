@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\file_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\game_object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\player_game_object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\sprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\particles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\particle_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\enemy_game_object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\bullet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\file_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\game_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\player_game_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\sprite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\particles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\particle_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\enemy_game_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\bullet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\sprite_vertex_shader.glsl" />
+    <None Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\sprite_fragment_shader.glsl" />
+    <None Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\particle_vertex_shader.glsl" />
+    <None Include="C:\Users\elgec\source\repos\2501_Project\BulletDemo\particle_fragment_shader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{A957FE7A-0FCA-3BB4-88BA-C8DA70991440}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{98C73505-3DA5-3CE6-87C9-76F163EE8F84}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
