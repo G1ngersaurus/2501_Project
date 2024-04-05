@@ -22,7 +22,7 @@ namespace game {
 // They are written here as global variables, but ideally they should be loaded from a configuration file
 
 // Globals that define the OpenGL window and viewport
-const char *window_title_g = "Game Demo";
+const char *window_title_g = "2501 Project";
 const unsigned int window_width_g = 800;
 const unsigned int window_height_g = 600;
 const glm::vec3 viewport_background_color_g(0.0, 0.0, 1.0);
@@ -117,9 +117,10 @@ void Game::Setup(void)
 
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
-    PlayerGameObject *player = new PlayerGameObject(glm::vec3(1.0f, -1.0f, 0.0f), sprite_, &sprite_shader_, tex_[0]);
+    PlayerGameObject *player = new PlayerGameObject(glm::vec3(1.0f, -1.0f, 0.0f), sprite_, &sprite_shader_, tex_[6]);
     float pi_over_two = glm::pi<float>() / 2.0f;
     player->SetRotation(pi_over_two);
+    //player->SetScale(1.0);
     game_objects_.push_back(player);
 
     // Setup other objects
@@ -135,7 +136,7 @@ void Game::Setup(void)
     // Setup background
     // In this specific implementation, the background is always the
     // last object
-    GameObject *background = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[3]);
+    GameObject *background = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[8]);
     background->SetScale(20.0);
     game_objects_.push_back(background);
 
@@ -183,7 +184,7 @@ void Game::SetAllTextures(void)
 {
     // Load all textures that we will need
     // Declare all the textures here
-    const char *texture[] = {"/textures/destroyer_red.png", "/textures/destroyer_green.png", "/textures/destroyer_blue.png", "/textures/stars2.png", "/textures/orb.png", "/textures/bullet.png"};
+    const char *texture[] = {"/textures/destroyer_red.png", "/textures/destroyer_green.png", "/textures/destroyer_blue.png", "/textures/stars2.png", "/textures/orb.png", "/textures/bullet.png", "/textures/player_sub.png", "/textures/water1.png", "/textures/water2.png"};
     // Get number of declared textures
     int num_textures = sizeof(texture) / sizeof(char *);
     // Allocate a buffer for all texture references
@@ -238,7 +239,7 @@ void Game::HandleControls(double delta_time)
     glm::vec3 dir = player->GetBearing();
     // Adjust motion increment and angle increment 
     // if translation or rotation is too slow
-    float speed = delta_time*500.0;
+    float speed = delta_time*2000.0;
     float motion_increment = 0.001*speed;
     float angle_increment = (glm::pi<float>() / 1800.0f)*speed;
 
@@ -249,16 +250,16 @@ void Game::HandleControls(double delta_time)
     if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
         player->SetPosition(curpos - motion_increment*dir);
     }
-    if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
-        player->SetRotation(angle - angle_increment);
-    }
+    //if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
+    //    player->SetRotation(angle - angle_increment);
+    //}
+    //if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
+    //    player->SetRotation(angle + angle_increment);
+    //}
     if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
-        player->SetRotation(angle + angle_increment);
-    }
-    if (glfwGetKey(window_, GLFW_KEY_Z) == GLFW_PRESS) {
         player->SetPosition(curpos - motion_increment*player->GetRight());
     }
-    if (glfwGetKey(window_, GLFW_KEY_C) == GLFW_PRESS) {
+    if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
         player->SetPosition(curpos + motion_increment*player->GetRight());
     }
     if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

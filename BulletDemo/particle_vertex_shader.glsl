@@ -50,7 +50,8 @@ void main()
     
     // Set color
     //color_interp = vec4(0.5+0.5*cos(4*acttime),0.5*sin(4*acttime)+0.5,0.5, 1.0);
-    color_interp = vec4(t, 0.0, 0.0, 1.0);
+    //color_interp = vec4(t, 0.0, 0.0, 1.0);
+    color_interp = vec4(0.1, 1.0, 1.0, 1.0);
 
     // Transfer texture coordinates
     uv_interp = uv;
