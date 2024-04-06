@@ -15,6 +15,7 @@
 #include "game.h"
 #include "enemy_game_object.h"
 #include "bullet.h"
+#include "tile.h"
 
 namespace game {
 
@@ -39,7 +40,8 @@ Game::Game(void)
 
 void Game::Init(void)
 {
-
+    lastSecond_ = -1;
+    camera_position_ = glm::vec3(0.0f, 0.0f, 0.0f);
     // Initialize the window management library (GLFW)
     if (!glfwInit()) {
         throw(std::runtime_error(std::string("Could not initialize the GLFW library")));
@@ -76,6 +78,9 @@ void Game::Init(void)
     // Initialize particle geometry
     particles_ = new Particles();
     particles_->CreateGeometry();
+
+    tile_ = new Tile();
+    tile_->CreateGeometry();
 
     // Initialize particle shader
     particle_shader_.Init((resources_directory_g+std::string("/particle_vertex_shader.glsl")).c_str(), (resources_directory_g+std::string("/particle_fragment_shader.glsl")).c_str());
@@ -117,17 +122,18 @@ void Game::Setup(void)
 
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
-    PlayerGameObject *player = new PlayerGameObject(glm::vec3(1.0f, -1.0f, 0.0f), sprite_, &sprite_shader_, tex_[6]);
+    PlayerGameObject *player = new PlayerGameObject(glm::vec3(1.0f, -1.0f, 0.0f), sprite_, &sprite_shader_, tex_[6], 0.8f, 2.0f);
     float pi_over_two = glm::pi<float>() / 2.0f;
     player->SetRotation(pi_over_two);
     //player->SetScale(1.0);
+    player->SetType(PlayerObj);
     game_objects_.push_back(player);
 
     // Setup other objects
-    EnemyGameObject *enemy1 = new EnemyGameObject(glm::vec3(-2.0f, -2.0f, 0.0f), sprite_, &sprite_shader_, tex_[1]);
+    EnemyGameObject *enemy1 = new EnemyGameObject(glm::vec3(2.0f, 4.0f, 0.0f), sprite_, &sprite_shader_, tex_[1], 1.0f, 1.0f);
     enemy1->SetRotation(pi_over_two);
     enemy1->SetTarget(player);
-    enemy1->SetVelocity(glm::vec3(0.0, 0.5, 0.0));
+    enemy1->SetVelocity(glm::vec3(0.0, 4.0, 0.0));
     game_objects_.push_back(enemy1);
     
     //game_objects_.push_back(new GameObject(glm::vec3(1.0f, -0.5f, 0.0f), sprite_, &sprite_shader_, tex_[2]));
@@ -136,12 +142,12 @@ void Game::Setup(void)
     // Setup background
     // In this specific implementation, the background is always the
     // last object
-    GameObject *background = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[8]);
-    background->SetScale(20.0);
+    GameObject *background = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), tile_, &sprite_shader_, tex_[8], 1.0f, 1.0f);
+    background->SetScale(500.0);
     game_objects_.push_back(background);
 
     // Setup particle system
-    GameObject *particles = new ParticleSystem(glm::vec3(-0.5f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], game_objects_[0]);
+    GameObject *particles = new ParticleSystem(glm::vec3(-0.9f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], game_objects_[0], 1.0f, 1.0f);
     particles->SetScale(0.2);
     particles->SetRotation(-pi_over_two);
     game_objects_.push_back(particles);
@@ -156,7 +162,7 @@ void Game::ResizeCallback(GLFWwindow* window, int width, int height)
 }
 
 
-void Game::SetTexture(GLuint w, const char *fname)
+void Game::SetTexture(GLuint w, const char *fname, bool background)
 {
     // Bind texture buffer
     glBindTexture(GL_TEXTURE_2D, w);
@@ -171,8 +177,15 @@ void Game::SetTexture(GLuint w, const char *fname)
     SOIL_free_image_data(image);
 
     // Texture Wrapping
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    if (background) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
+    else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    
 
     // Texture Filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -184,7 +197,7 @@ void Game::SetAllTextures(void)
 {
     // Load all textures that we will need
     // Declare all the textures here
-    const char *texture[] = {"/textures/destroyer_red.png", "/textures/destroyer_green.png", "/textures/destroyer_blue.png", "/textures/stars2.png", "/textures/orb.png", "/textures/bullet.png", "/textures/player_sub.png", "/textures/water1.png", "/textures/water2.png"};
+    const char *texture[] = {"/textures/destroyer_red.png", "/textures/destroyer_green.png", "/textures/destroyer_blue.png", "/textures/stars2.png", "/textures/orb.png", "/textures/bullet.png", "/textures/player_sub.png", "/textures/water1.png", "/textures/water2.png", "/textures/sonic_javelin.png"};
     // Get number of declared textures
     int num_textures = sizeof(texture) / sizeof(char *);
     // Allocate a buffer for all texture references
@@ -192,7 +205,10 @@ void Game::SetAllTextures(void)
     glGenTextures(num_textures, tex_);
     // Load each texture
     for (int i = 0; i < num_textures; i++){
-        SetTexture(tex_[i], (resources_directory_g+std::string(texture[i])).c_str());
+        if (i == 8) {
+            SetTexture(tex_[i], (resources_directory_g + std::string(texture[i])).c_str(), true);
+        }
+        else SetTexture(tex_[i], (resources_directory_g+std::string(texture[i])).c_str(), false);
     }
     // Set first texture in the array as default
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
@@ -220,7 +236,7 @@ void Game::MainLoop(void)
         Update(delta_time);
 
         // Render all the game objects
-        Render();
+        Render(delta_time);
 
         // Push buffer drawn in the background onto the display
         glfwSwapBuffers(window_);
@@ -245,10 +261,12 @@ void Game::HandleControls(double delta_time)
 
     // Check for player input and make changes accordingly
     if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
-        player->SetPosition(curpos + motion_increment*dir);
+        //player->SetPosition(curpos + motion_increment*dir);
+        player->SetVelocity(glm::vec3(0.0f, 3.0f, 0.0f));
     }
-    if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
-        player->SetPosition(curpos - motion_increment*dir);
+    else if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
+        //player->SetPosition(curpos - motion_increment*dir);
+        player->SetVelocity(glm::vec3(0.0f, -1.0f, 0.0f));
     }
     //if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
     //    player->SetRotation(angle - angle_increment);
@@ -256,11 +274,16 @@ void Game::HandleControls(double delta_time)
     //if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
     //    player->SetRotation(angle + angle_increment);
     //}
-    if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
-        player->SetPosition(curpos - motion_increment*player->GetRight());
+    else if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
+        //player->SetPosition(curpos - motion_increment*player->GetRight());
+        player->SetVelocity(glm::vec3(-2.0f, 1.0f, 0.0f));
     }
-    if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
-        player->SetPosition(curpos + motion_increment*player->GetRight());
+    else if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
+        //player->SetPosition(curpos + motion_increment*player->GetRight());
+        player->SetVelocity(glm::vec3(2.0f, 1.0f, 0.0f));
+    }
+    else {
+        player->SetVelocity(glm::vec3(0.0f, 1.0f, 0.0f));
     }
     if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window_, true);
@@ -268,15 +291,16 @@ void Game::HandleControls(double delta_time)
     if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
         if (current_time_ > next_shot_){
             GameObject *player = game_objects_[0];
-            Bullet *bullet = new Bullet(player->GetPosition(), sprite_, &sprite_shader_, tex_[5]);
+            Bullet *bullet = new Bullet(player->GetPosition(), sprite_, &sprite_shader_, tex_[9], 1.0f, 1.0f);
             bullet->SetRotation(player->GetRotation()-glm::pi<float>()/2.0);
-            bullet->SetVelocity(10.0f*player->GetBearing());
-            bullet->SetScale(0.5f);
+            bullet->SetVelocity(12.0f*player->GetBearing());
+            //bullet->SetScale(0.5f);
             bullet->SetOrigin(player->GetPosition());
             game_objects_.insert(game_objects_.end()-2, bullet);
-            next_shot_ = current_time_ + 0.5;
+            next_shot_ = current_time_ + 0.25;
         }
     }
+    
 }
 
 
@@ -285,6 +309,14 @@ void Game::Update(double delta_time)
 
     // Update time
     current_time_ += delta_time;
+    //if ((fmod(current_time_, 1) <= 0.01) && (fmod(current_time_, 1) >= 0.0)) std::cout << current_time_ << std::endl;
+    //std::cout << fmod(current_time_, 1) << std::endl;
+    seconds_ = (int)(current_time_ + 0.5);
+    if (seconds_ > lastSecond_) {
+        lastSecond_ = seconds_;
+        std::cout << lastSecond_ << std::endl;
+    }
+    
 
     // List of objects to be removed at the end of the update
     std::vector<GameObject*> to_erase;
@@ -295,7 +327,11 @@ void Game::Update(double delta_time)
         GameObject* current_game_object = game_objects_[i];
 
         // Update the current game object
-        current_game_object->Update(delta_time);
+        if (current_game_object->GetType() == PlayerObj) {
+            PlayerGameObject* player = dynamic_cast<PlayerGameObject*>(current_game_object);
+            player->Update(delta_time, camera_position_);
+        }
+        else current_game_object->Update(delta_time);
 
         // Check for collision with other game objects
         if (current_game_object->GetType() == BulletObj){
@@ -346,7 +382,7 @@ void Game::Update(double delta_time)
 }
 
 
-void Game::Render(void){
+void Game::Render(double delta_time){
 
     // Clear background
     glClearColor(viewport_background_color_g.r,
@@ -369,8 +405,9 @@ void Game::Render(void){
     // Set view to zoom out, centered by default at 0,0
     float camera_zoom = 0.25f;
     glm::mat4 camera_zoom_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(camera_zoom, camera_zoom, camera_zoom));
-    glm::mat4 view_matrix = window_scale_matrix * camera_zoom_matrix;
-
+    camera_position_ += (float)delta_time * glm::vec3(0.0f, 1.0f, 0.0f);
+    //glm::mat4 view_matrix = window_scale_matrix * camera_zoom_matrix;
+    glm::mat4 view_matrix = window_scale_matrix * camera_zoom_matrix * glm::translate(glm::mat4(1.0f), -camera_position_);
     // Render all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
         game_objects_[i]->Render(view_matrix, current_time_);

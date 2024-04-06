@@ -6,8 +6,8 @@
 
 namespace game {
 
-ParticleSystem::ParticleSystem(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, GameObject *parent)
-	: GameObject(position, geom, shader, texture){
+ParticleSystem::ParticleSystem(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, GameObject *parent, float yScale, float xScale)
+	: GameObject(position, geom, shader, texture, yScale, xScale){
 
     parent_ = parent;
 }

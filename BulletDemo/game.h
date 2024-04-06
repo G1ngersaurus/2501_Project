@@ -39,6 +39,9 @@ namespace game {
             // Particle geometry
             Geometry *particles_;
 
+            // Tile geometry
+            Geometry* tile_;
+
             // Shader for rendering sprites in the scene
             Shader sprite_shader_;
 
@@ -55,6 +58,12 @@ namespace game {
             // Keep track of time
             double current_time_;
 
+            int seconds_;
+            int lastSecond_;
+
+            glm::vec3 camera_position_;
+            glm::vec3 cam_velocity_;
+
             // Shooting cool down
             double next_shot_;
 
@@ -62,7 +71,7 @@ namespace game {
             static void ResizeCallback(GLFWwindow* window, int width, int height);
 
             // Set a specific texture
-            void SetTexture(GLuint w, const char *fname);
+            void SetTexture(GLuint w, const char *fname, bool background);
 
             // Load all textures
             void SetAllTextures();
@@ -74,7 +83,7 @@ namespace game {
             void Update(double delta_time);
  
             // Render the game world
-            void Render(void);
+            void Render(double delta_time);
 
     }; // class Game
 

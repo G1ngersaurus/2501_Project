@@ -20,7 +20,7 @@ namespace game {
 
         public:
             // Constructor
-            GameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture);
+            GameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, float yScale, float xScale);
 
             // Update the GameObject's state. Can be overriden in children
             virtual void Update(double delta_time);
@@ -55,6 +55,8 @@ namespace game {
             glm::vec3 position_;
             float scale_;
             float angle_;
+            float yScale_;
+            float xScale_;
             glm::vec3 velocity_;
 
             // Geometry

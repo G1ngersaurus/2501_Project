@@ -17,6 +17,7 @@ set(HDRS
     particle_system.h
     enemy_game_object.h
     bullet.h
+    tile.h
 )
  
 set(SRCS
@@ -31,6 +32,7 @@ set(SRCS
     particle_system.cpp
     enemy_game_object.cpp
     bullet.cpp
+    tile.cpp
     sprite_vertex_shader.glsl
     sprite_fragment_shader.glsl
     particle_vertex_shader.glsl

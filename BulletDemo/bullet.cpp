@@ -4,8 +4,8 @@
 
 namespace game {
 
-Bullet::Bullet(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture)
-	: GameObject(position, geom, shader, texture) {
+Bullet::Bullet(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, float yScale, float xScale)
+	: GameObject(position, geom, shader, texture, yScale, xScale) {
 
 	current_time_ = 0.0;
 	last_time_ = 0.0;

@@ -4,8 +4,8 @@
 
 namespace game {
 
-EnemyGameObject::EnemyGameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture)
-	: GameObject(position, geom, shader, texture) {
+EnemyGameObject::EnemyGameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, float yScale, float xScale)
+	: GameObject(position, geom, shader, texture, yScale, xScale) {
 
 	target_ = nullptr;
 	current_time_ = 0.0;
