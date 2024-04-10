@@ -6,7 +6,7 @@
 
 namespace game {
 
-GameObject::GameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture) 
+GameObject::GameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, float yScale, float xScale, int health) 
 {
 
     // Initialize all attributes
@@ -18,8 +18,29 @@ GameObject::GameObject(const glm::vec3 &position, Geometry *geom, Shader *shader
     texture_ = texture;
     velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
     type_ = GenericObj;
+    yScale_ = yScale;
+    xScale_ = xScale;
+    health_ = health;
+    alive_ = true;
+    particles_ = nullptr;
+    death_timer_ = new Timer();
 }
 
+GameObject::~GameObject() {
+    std::cout << "DELTED" << std::endl;
+    if (particles_ != nullptr) particles_->SetAlive(false);
+}
+
+void GameObject::SetAlive(bool value) {
+    alive_ = false;
+    //if (particles_ != nullptr) particles_->SetAlive(false);
+}
+
+bool GameObject::TakeDamage(int value) {
+    health_ -= value;
+    if (health_ <= 0) return true;
+    return false;
+}
 
 glm::vec3 GameObject::GetBearing(void) const {
 
@@ -27,6 +48,18 @@ glm::vec3 GameObject::GetBearing(void) const {
     return dir;
 }
 
+glm::vec3 GameObject::GetBottomLeft(void) const {
+    float pi_over_four = glm::pi<float>() / 4.0f;
+    glm::vec3 dir(cos(angle_ - pi_over_four), sin(angle_ - pi_over_four), 0.0);
+    return dir;
+}
+
+
+glm::vec3 GameObject::GetBottomRight(void) const {
+    float pi_over_four = glm::pi<float>() / 4.0f;
+    glm::vec3 dir(cos(angle_ + pi_over_four), sin(angle_ + pi_over_four), 0.0);
+    return dir;
+}
 
 glm::vec3 GameObject::GetRight(void) const {
 
@@ -64,7 +97,7 @@ void GameObject::Render(glm::mat4 view_matrix, double current_time){
     shader_->SetUniformMat4("view_matrix", view_matrix);
 
     // Setup the scaling matrix for the shader
-    glm::mat4 scaling_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale_, scale_, 1.0));
+    glm::mat4 scaling_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale_ * xScale_, scale_ * yScale_, 1.0));
 
     // Setup the rotation matrix for the shader
     glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), angle_, glm::vec3(0.0, 0.0, 1.0));

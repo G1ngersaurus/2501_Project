@@ -4,8 +4,8 @@
 
 namespace game {
 
-EnemyGameObject::EnemyGameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture)
-	: GameObject(position, geom, shader, texture) {
+EnemyGameObject::EnemyGameObject(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, float yScale, float xScale, int health)
+	: GameObject(position, geom, shader, texture, yScale, xScale, health) {
 
 	target_ = nullptr;
 	current_time_ = 0.0;
@@ -15,10 +15,10 @@ EnemyGameObject::EnemyGameObject(const glm::vec3 &position, Geometry *geom, Shad
 
 // Generic mapping function
 // Map a number "input" in the range [a, b] to the range [c, d]
-float map(float input, float a, float b, float c, float d){
-
-	return c + (d - c)*(input -a)/(b - a);
-}
+//float map(float input, float a, float b, float c, float d){
+//
+//	return c + (d - c)*(input -a)/(b - a);
+//}
 
 // Update function for moving the player object around
 void EnemyGameObject::Update(double delta_time) {
@@ -85,8 +85,8 @@ void EnemyGameObject::Update(double delta_time) {
 		float r = 0.5; // Distance threshold when arrival kicks in
 		float d = glm::length(target_->GetPosition() - position_);
 		if (d < r){
-			float z = map(d, 0, r, 0, s);
-			velocity_ = z * glm::normalize(velocity_);
+			//float z = map(d, 0, r, 0, s);
+			//velocity_ = z * glm::normalize(velocity_);
 		}
 	}
 

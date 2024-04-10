@@ -4,12 +4,21 @@
 
 namespace game {
 
-Bullet::Bullet(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture)
-	: GameObject(position, geom, shader, texture) {
-
+Bullet::Bullet(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, float yScale, float xScale, int health)
+	: GameObject(position, geom, shader, texture, yScale, xScale, health) {
+	lifespan_ = new Timer();
 	current_time_ = 0.0;
 	last_time_ = 0.0;
 	type_ = BulletObj;
+	lifespan_->Start(2.0);
+}
+
+Bullet::~Bullet() {
+	std::cout << "DELTED" << std::endl;
+	if (particles_ != nullptr) {
+		std::cout << particles_->GetRotation() << std::endl;
+		particles_->SetAlive(false);
+	}
 }
 
 // Check for possible intersections between a ray (P, d) and a circle (C, r)
@@ -86,6 +95,7 @@ void Bullet::Update(double delta_time) {
 
 	// Update position based on current time, origin, and bullet direction
 	position_ = origin_ + ((float)current_time_)*velocity_;
+	if (lifespan_->Finished()) alive_ = false;
 
 	// Add some code to limit the lifespan of the bullet...
 }

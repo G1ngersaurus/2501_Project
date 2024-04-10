@@ -17,6 +17,15 @@ set(HDRS
     particle_system.h
     enemy_game_object.h
     bullet.h
+    tile.h
+    timer.h
+    text_game_object.h
+    drawing_game_object.h
+    mine_enemy_object.h
+    shark_enemy_object.h
+    sub_enemy_object.h
+    boss_sub_object.h
+    boss_turret_object.h
 )
  
 set(SRCS
@@ -31,10 +40,21 @@ set(SRCS
     particle_system.cpp
     enemy_game_object.cpp
     bullet.cpp
+    tile.cpp
+    timer.cpp
+    text_game_object.cpp
+    drawing_game_object.cpp
+    mine_enemy_object.cpp
+    shark_enemy_object.cpp
+    sub_enemy_object.cpp
+    boss_sub_object.cpp
+    boss_turret_object.cpp
     sprite_vertex_shader.glsl
     sprite_fragment_shader.glsl
     particle_vertex_shader.glsl
     particle_fragment_shader.glsl
+    drawing_fragment_shader.glsl
+    text_fragment_shader.glsl
 )
 
 # Add path name to configuration file

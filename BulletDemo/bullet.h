@@ -9,8 +9,8 @@ namespace game {
     class Bullet : public GameObject {
 
         public:
-            Bullet(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture);
-
+            Bullet(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint texture, float yScale, float xScale, int health);
+            ~Bullet();
             // Update function for moving the player object around
             void Update(double delta_time) override;
 
@@ -22,7 +22,7 @@ namespace game {
             double current_time_;
             double last_time_;
             glm::vec3 origin_;
-
+            Timer* lifespan_;
     }; // class Bullet
 
 } // namespace game
