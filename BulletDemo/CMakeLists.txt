@@ -26,6 +26,8 @@ set(HDRS
     sub_enemy_object.h
     boss_sub_object.h
     boss_turret_object.h
+    explosion_particles.h
+    item_game_object.h
 )
  
 set(SRCS
@@ -49,6 +51,8 @@ set(SRCS
     sub_enemy_object.cpp
     boss_sub_object.cpp
     boss_turret_object.cpp
+    explosion_particles.cpp
+    item_game_object.cpp
     sprite_vertex_shader.glsl
     sprite_fragment_shader.glsl
     particle_vertex_shader.glsl

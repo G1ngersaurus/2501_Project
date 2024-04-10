@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "particle_system.h"
+#include <iostream>
 
 
 namespace game {
@@ -10,11 +11,13 @@ ParticleSystem::ParticleSystem(const glm::vec3 &position, Geometry *geom, Shader
 	: GameObject(position, geom, shader, texture, yScale, xScale, health){
 
     parent_ = parent;
+    reset_timer_ = 0;
+    type_ = PSystemObj;
 }
 
 
 void ParticleSystem::Update(double delta_time) {
-
+    reset_timer_ += delta_time;
     // Call the parent's update method to move the object in standard way, if desired
     GameObject::Update(delta_time);
 }
@@ -49,7 +52,11 @@ void ParticleSystem::Render(glm::mat4 view_matrix, double current_time){
     shader_->SetUniformMat4("transformation_matrix", transformation_matrix);
 
     // Set the time in the shader
-    shader_->SetUniform1f("time", current_time);
+    shader_->SetUniform1f("time", reset_timer_);
+    if (type_ == PSystemExplosionObj) {
+        shader_->SetUniform1i("explosion", 1);
+    }
+    else shader_->SetUniform1i("explosion", 0);
 
     // Set up the geometry
     geometry_->SetGeometry(shader_->GetShaderProgram());

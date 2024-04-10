@@ -24,11 +24,18 @@ GameObject::GameObject(const glm::vec3 &position, Geometry *geom, Shader *shader
     alive_ = true;
     particles_ = nullptr;
     death_timer_ = new Timer();
+    invincible_ = false;
+    powerup_timer_ = new Timer();
 }
 
 GameObject::~GameObject() {
-    std::cout << "DELTED" << std::endl;
+
     if (particles_ != nullptr) particles_->SetAlive(false);
+}
+
+void GameObject::PowerUp(void) {
+    invincible_ = true;
+    powerup_timer_->Start(10);
 }
 
 void GameObject::SetAlive(bool value) {
@@ -83,7 +90,7 @@ void GameObject::SetRotation(float angle){
 
 
 void GameObject::Update(double delta_time) {
-
+    if (powerup_timer_->Finished()) invincible_ = false;
     position_ += velocity_*((float) delta_time);
 }
 

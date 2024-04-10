@@ -11,6 +11,7 @@ in vec2 uv; // Texture coordinates
 uniform mat4 transformation_matrix;
 uniform mat4 view_matrix;
 uniform float time; // Timer
+uniform int explosion; // Tells whether this is an explosion or not
 
 // Attributes forwarded to the fragment shader
 out vec4 color_interp;
@@ -18,41 +19,83 @@ out vec2 uv_interp;
 
 void main()
 {
-    vec4 pos; // Vertex position
-    float cycle = 5.0; // Duration of cycle in seconds
-    float speed = 1.0; // Speed adjustment constant
-    float gravity = 1.0; // Gravity in this world
-    float acttime; // Cyclic time
+    if (explosion == 1) {
+        float cycle = 0.0;
+        float speed = 12.0;
+        vec4 pos; // Vertex position
+        float gravity = 1.0; // Gravity in this world
+        float acttime; // Cyclic time
 
-    // Add phase to the time and cycle it
-    acttime = mod(time + t*cycle, cycle);
+        // Add phase to the time and cycle it
+        acttime = mod(time + t*cycle, cycle);
 
-    // Move particle along given direction
-    //pos = vec4(vertex.x + acttime*speed*dir.x , vertex.y + acttime*speed*dir.y , 0.0, 1.0);
-    pos = vec4(vertex + 2.0*acttime*speed*dir, 0.0, 1.0);
+        // Move particle along given direction
+        //pos = vec4(vertex.x + acttime*speed*dir.x , vertex.y + acttime*speed*dir.y , 0.0, 1.0);
+        pos = vec4(vertex + 2.0*acttime*speed*dir, 0.0, 1.0);
 
-    // Debug initial particle setup
-    //pos = vec4(vertex + dir, 0.0, 1.0);
+        // Debug initial particle setup
+        //pos = vec4(vertex + dir, 0.0, 1.0);
 
-    // Add wobble effect
-    //pos = vec4(vertex.x + cos(acttime)*speed*dir.x , vertex.y + sin(acttime)*speed*dir.y , 0.0, 1.0);
+        // Add wobble effect
+        //pos = vec4(vertex.x + cos(acttime)*speed*dir.x , vertex.y + sin(acttime)*speed*dir.y , 0.0, 1.0);
 
-    // Add gravity
-    //pos = vec4(vertex.x+dir.x*acttime*speed , vertex.y+dir.y*acttime*speed + 0.5*gravity*acttime*acttime, 0.0, 1.0);
+        // Add gravity
+        //pos = vec4(vertex.x+dir.x*acttime*speed , vertex.y+dir.y*acttime*speed + 0.5*gravity*acttime*acttime, 0.0, 1.0);
 
-    // No motion, for debug
-    //pos = vec4(vertex.x, vertex.y, 0.0, 1.0);
+        // No motion, for debug
+        //pos = vec4(vertex.x, vertex.y, 0.0, 1.0);
 
-    // Transform vertex position
-    gl_Position = view_matrix*transformation_matrix*pos;
+        // Transform vertex position
+        gl_Position = view_matrix*transformation_matrix*pos;
     
-    //gl_Position.y -= 0.1*gravity*acttime*acttime;
+        //gl_Position.y -= 0.1*gravity*acttime*acttime;
     
-    // Set color
-    //color_interp = vec4(0.5+0.5*cos(4*acttime),0.5*sin(4*acttime)+0.5,0.5, 1.0);
-    //color_interp = vec4(t, 0.0, 0.0, 1.0);
-    color_interp = vec4(0.1, 1.0, 1.0, 1.0);
+        // Set color
+        //color_interp = vec4(0.5+0.5*cos(4*acttime),0.5*sin(4*acttime)+0.5,0.5, 1.0);
+        //color_interp = vec4(t, 0.0, 0.0, 1.0);
+        color_interp = vec4(0.1, 1.0, 1.0, 1.0);
 
-    // Transfer texture coordinates
-    uv_interp = uv;
+        // Transfer texture coordinates
+        uv_interp = uv;
+    }
+    else {
+        vec4 pos; // Vertex position
+        float cycle = 5.0; // Duration of cycle in seconds
+        float speed = 1.0; // Speed adjustment constant
+        float gravity = 1.0; // Gravity in this world
+        float acttime; // Cyclic time
+
+        // Add phase to the time and cycle it
+        acttime = mod(time + t*cycle, cycle);
+
+        // Move particle along given direction
+        //pos = vec4(vertex.x + acttime*speed*dir.x , vertex.y + acttime*speed*dir.y , 0.0, 1.0);
+        pos = vec4(vertex + 2.0*acttime*speed*dir, 0.0, 1.0);
+
+        // Debug initial particle setup
+        //pos = vec4(vertex + dir, 0.0, 1.0);
+
+        // Add wobble effect
+        //pos = vec4(vertex.x + cos(acttime)*speed*dir.x , vertex.y + sin(acttime)*speed*dir.y , 0.0, 1.0);
+
+        // Add gravity
+        //pos = vec4(vertex.x+dir.x*acttime*speed , vertex.y+dir.y*acttime*speed + 0.5*gravity*acttime*acttime, 0.0, 1.0);
+
+        // No motion, for debug
+        //pos = vec4(vertex.x, vertex.y, 0.0, 1.0);
+
+        // Transform vertex position
+        gl_Position = view_matrix*transformation_matrix*pos;
+    
+        //gl_Position.y -= 0.1*gravity*acttime*acttime;
+    
+        // Set color
+        //color_interp = vec4(0.5+0.5*cos(4*acttime),0.5*sin(4*acttime)+0.5,0.5, 1.0);
+        //color_interp = vec4(t, 0.0, 0.0, 1.0);
+        color_interp = vec4(0.1, 1.0, 1.0, 1.0);
+
+        // Transfer texture coordinates
+        uv_interp = uv;
+    }
+    
 }

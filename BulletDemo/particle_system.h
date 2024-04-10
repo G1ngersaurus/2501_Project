@@ -17,6 +17,7 @@ namespace game {
 
         private:
             GameObject *parent_;
+            double reset_timer_;
 
     }; // class ParticleSystem
 

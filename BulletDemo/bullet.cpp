@@ -14,7 +14,7 @@ Bullet::Bullet(const glm::vec3 &position, Geometry *geom, Shader *shader, GLuint
 }
 
 Bullet::~Bullet() {
-	std::cout << "DELTED" << std::endl;
+	//std::cout << "DELTED" << std::endl;
 	if (particles_ != nullptr) {
 		std::cout << particles_->GetRotation() << std::endl;
 		particles_->SetAlive(false);

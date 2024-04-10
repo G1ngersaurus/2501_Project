@@ -32,24 +32,26 @@ void SubEnemyObject::Update(double delta_time, glm::vec3 camera) {
 	
 	// Set orientation based on current velocity vector
 	//angle_ = glm::atan(-velocity_.y, velocity_.x);
+	if (alive_) {
+		if (docile_) {
+			velocity_ = glm::vec3(0.0f, 0.5f, 0.0f);
 
-	if (docile_) {
-		velocity_ = glm::vec3(0.0f, 0.5f, 0.0f);
-
-		if (position_.y < camera.y + 3) {
-			docile_ = false;
-			velocity_ = glm::vec3(2.0f, 1.0f, 0.0f);
-		}
-	}
-	else {
-		if ((int)current_time_ > lastSecond_) {
-			lastSecond_ = (int)current_time_;
-			if (fmod(lastSecond_, 1) == 0) {
-				velocity_.x *= -1.0f;
+			if (position_.y < camera.y + 3) {
+				docile_ = false;
+				velocity_ = glm::vec3(2.0f, 1.0f, 0.0f);
 			}
 		}
-		
+		else {
+			if ((int)current_time_ > lastSecond_) {
+				lastSecond_ = (int)current_time_;
+				if (fmod(lastSecond_, 1) == 0) {
+					velocity_.x *= -1.0f;
+				}
+			}
+
+		}
 	}
+	
 	if (health_ <= 0) alive_ = false;
 
 

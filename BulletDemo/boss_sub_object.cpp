@@ -33,21 +33,27 @@ void BossSubObject::Update(double delta_time, glm::vec3 camera) {
 
 	// Set orientation based on current velocity vector
 	//angle_ = glm::atan(-velocity_.y, velocity_.x);
+	if (alive_) {
+		if (docile_) {
+			velocity_ = glm::vec3(0.0f, 0.5f, 0.0f);
 
-	if (docile_) {
-		velocity_ = glm::vec3(0.0f, 0.5f, 0.0f);
+			if (position_.y < camera.y + 1.55) {
+				docile_ = false;
+				velocity_ = glm::vec3(2.0f, 1.0f, 0.0f);
+			}
+		}
+		else {
+			if ((position_.x <= camera.x - 3)) {
+				velocity_.x = 1.0f;
+			}
+			else if ((position_.x >= camera.x + 3)) {
+				velocity_.x = -1.0f;
+			}
 
-		if (position_.y < camera.y + 1.55) {
-			docile_ = false;
-			velocity_ = glm::vec3(2.0f, 1.0f, 0.0f);
 		}
 	}
-	else {
-		if ((position_.x <= camera.x - 3) || (position_.x >= camera.x + 3)) {
-			velocity_.x *= -1.0f;
-		}
-
-	}
+	else velocity_ = glm::vec3(0.0f, 0.8f, 0.0f);
+	
 	if (health_ <= 0) alive_ = false;
 	// Call the parent's update method to move the object in standard way, if desired
 	GameObject::Update(delta_time);

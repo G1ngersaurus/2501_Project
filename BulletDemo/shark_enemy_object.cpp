@@ -27,28 +27,31 @@ void SharkEnemyObject::Update(double delta_time) {
 	current_time_ += delta_time;
 
 	// Set orientation based on current velocity vector
-	angle_ = glm::atan(velocity_.y, velocity_.x);
+	if (alive_) {
+		angle_ = glm::atan(velocity_.y, velocity_.x);
 
-	// Chase steering behavior
+		// Chase steering behavior
 
-		// Compute steering force (acceleration)
-	glm::vec3 desired = target_->GetPosition() - position_;
-	glm::vec3 acc = desired - velocity_;
+			// Compute steering force (acceleration)
+		glm::vec3 desired = target_->GetPosition() - position_;
+		glm::vec3 acc = desired - velocity_;
 
-	// Add steering to velocity
-	velocity_ += acc * ((float)delta_time);
+		// Add steering to velocity
+		velocity_ += acc * ((float)delta_time);
 
-	// Limit maximum velocity
-	float s = 0.7;
-	velocity_ = s * glm::normalize(velocity_);
+		// Limit maximum velocity
+		float s = 0.7;
+		velocity_ = s * glm::normalize(velocity_);
 
-	// Perform arrival
-	float r = 0.5; // Distance threshold when arrival kicks in
-	float d = glm::length(target_->GetPosition() - position_);
-	if (d < r) {
-		float z = map(d, 0, r, 0, s);
-		velocity_ = z * glm::normalize(velocity_);
+		// Perform arrival
+		float r = 0.5; // Distance threshold when arrival kicks in
+		float d = glm::length(target_->GetPosition() - position_);
+		if (d < r) {
+			float z = map(d, 0, r, 0, s);
+			velocity_ = z * glm::normalize(velocity_);
+		}
 	}
+	
 	if (health_ <= 0) alive_ = false;
 	GameObject::Update(delta_time);
 }

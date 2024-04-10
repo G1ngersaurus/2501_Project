@@ -32,7 +32,7 @@ void BossTurretObject::Update(double delta_time) {
 
 	// Set orientation based on current velocity vector
 	glm::vec3 targetDir = glm::vec3(glm::distance(fake_position_.y, target_->GetPosition().y), glm::distance(fake_position_.x, target_->GetPosition().x), 0.0f);
-	angle_ = glm::atan(targetDir.y, targetDir.x);
+	angle_ = glm::atan(targetDir.y, targetDir.x) - glm::pi<float>();
 
 
 	// Compute steering force (acceleration)

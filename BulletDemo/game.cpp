@@ -22,6 +22,8 @@
 #include "sub_enemy_object.h"
 #include "boss_sub_object.h"
 #include "boss_turret_object.h"
+#include "explosion_particles.h"
+#include "item_game_object.h"
 
 namespace game {
 
@@ -83,6 +85,9 @@ void Game::Init(void)
     particles_ = new Particles();
     particles_->CreateGeometry();
 
+    explosion_particles_ = new ExplosionParticles();
+    explosion_particles_->CreateGeometry();
+
     tile_ = new Tile();
     tile_->CreateGeometry();
 
@@ -110,6 +115,8 @@ void Game::Init(void)
     player_dead_ = false;
     turret_killcount_ = 0;
     boss_dead_ = false;
+    damage_factor_ = 1;
+    boss_vuln_ = false;
 }
 
 
@@ -139,7 +146,7 @@ void Game::Setup(void)
 
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
-    PlayerGameObject *player = new PlayerGameObject(glm::vec3(1.0f, -1.0f, 0.0f), sprite_, &sprite_shader_, tex_[6], 0.8f, 2.0f, 10);
+    PlayerGameObject *player = new PlayerGameObject(glm::vec3(1.0f, -1.0f, 0.0f), sprite_, &sprite_shader_, tex_[6], 0.8f, 2.0f, 10, 10);
     float pi_over_two = glm::pi<float>() / 2.0f;
     player->SetRotation(pi_over_two);
     //player->SetScale(1.0);
@@ -165,38 +172,7 @@ void Game::Setup(void)
     //enemy3->SetRotation(3* pi_over_two);
     //enemy3->SetType(SubObj);
     //game_objects_.push_back(enemy3);
-    BossSubObject* boss = new BossSubObject(glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[15], 1.0f, 1.25f, 20);
-    boss->SetScale(8.0f);
-    boss->SetTarget(player);
-    //boss->SetRotation(3* pi_over_two);
-    boss->SetType(BossObj);
-    game_objects_.push_back(boss);
-
-    BossTurretObject* turret1 = new BossTurretObject(glm::vec3(-3.55f, 1.4f, -0.5f), sprite_, &sprite_shader_, tex_[16], boss, glm::vec3(-3.55f, 1.4f, -0.5f), 1.0f, 1.0f, 10);
-    turret1->SetTarget(player);
-    turret1->SetScale(3.0f);
-    turret1->SetRotation(-pi_over_two);
-    turret1->SetType(TurretObj);
-    BossTurretObject* turret2 = new BossTurretObject(glm::vec3(-1.95f, 1.4f, -0.5f), sprite_, &sprite_shader_, tex_[16], boss, glm::vec3(-3.55f, 1.4f, -0.5f), 1.0f, 1.0f, 10);
-    turret2->SetTarget(player);
-    turret2->SetScale(3.0f);
-    turret2->SetRotation(-pi_over_two);
-    turret2->SetType(TurretObj);
-    BossTurretObject* turret3 = new BossTurretObject(glm::vec3(1.95f, 1.4f, -0.5f), sprite_, &sprite_shader_, tex_[16], boss, glm::vec3(-3.55f, 1.4f, -0.5f), 1.0f, 1.0f, 10);
-    turret3->SetTarget(player);
-    turret3->SetScale(3.0f);
-    turret3->SetRotation(-pi_over_two);
-    turret3->SetType(TurretObj);
-    BossTurretObject* turret4 = new BossTurretObject(glm::vec3(3.55f, 1.4f, -0.5f), sprite_, &sprite_shader_, tex_[16], boss, glm::vec3(-3.55f, 1.4f, -0.5f), 1.0f, 1.0f, 10);
-    turret4->SetTarget(player);
-    turret4->SetScale(3.0f);
-    turret4->SetRotation(-pi_over_two);
-    turret4->SetType(TurretObj);
-
-    game_objects_.push_back(turret1);
-    game_objects_.push_back(turret2);
-    game_objects_.push_back(turret3);
-    game_objects_.push_back(turret4);
+    
 
     //game_objects_.push_back(new GameObject(glm::vec3(1.0f, -0.5f, 0.0f), sprite_, &sprite_shader_, tex_[2]));
     //game_objects_[2]->SetRotation(pi_over_two);
@@ -224,6 +200,32 @@ void Game::Setup(void)
     std::string score = std::to_string(score_); 
     text3->SetText("|Score: " + score); 
     game_objects_.push_back(text3); 
+
+    TextGameObject* text4 = new TextGameObject(camera_position_ + glm::vec3(0.0f, 3.75f, -1.0f), sprite_, &text_shader_, tex_[17], 0.5f, 10.7f, 1);
+    //text4->SetScale(0.1f);
+    text4->SetType(ExplainObj);
+    text4->SetVelocity(glm::vec3(0.0f, 1.0f, 0.0f));
+    text4->SetText("Find Red White and Blue October.");
+    game_objects_.push_back(text4);
+    text4->SetAlive(false);
+    text4->GetDeath()->Start(10);
+    TextGameObject* text5 = new TextGameObject(camera_position_ + glm::vec3(0.0f, 3.25f, -1.0f), sprite_, &text_shader_, tex_[17], 0.5f, 10.7f, 1);
+    //text5->SetScale(0.1f);
+    text5->SetType(ExplainObj);
+    text5->SetVelocity(glm::vec3(0.0f, 1.0f, 0.0f));
+    text5->SetText("You'll know it when you see it.");
+    game_objects_.push_back(text5);
+    text5->SetAlive(false);
+    text5->GetDeath()->Start(10);
+    TextGameObject* text6 = new TextGameObject(camera_position_ + glm::vec3(0.0f, 2.75f, -1.0f), sprite_, &text_shader_, tex_[17], 0.5f, 10.7f, 1);
+    //text6->SetScale(0.1f);
+    text6->SetType(ExplainObj);
+    text6->SetVelocity(glm::vec3(0.0f, 1.0f, 0.0f));
+    text6->SetText("Destroy it, before it's too late...");
+    game_objects_.push_back(text6);
+    text6->SetAlive(false);
+    text6->GetDeath()->Start(10);
+
     // Setup background
     // In this specific implementation, the background is always the
     // last object
@@ -286,7 +288,8 @@ void Game::SetAllTextures(void)
         "/textures/stars2.png", "/textures/orb.png", "/textures/bullet.png", "/textures/player_sub.png", 
         "/textures/water1.png", "/textures/water2.png", "/textures/sonic_javelin.png", "/textures/font.png", 
         "/textures/mine_enemy.png", "/textures/shark_enemy.png", "/textures/enemy_sub.png", "/textures/torpedo.png", "/textures/red_white_blue_october.png",
-        "/textures/rwb_turret.png"
+        "/textures/rwb_turret.png", "/textures/clear_font.png", "/textures/player_invincible.png", "/textures/rwb_invincible.png", "/textures/repair_kit.png", "/textures/starinivn.png",
+        "/textures/upgrade.png"
     };
     // Get number of declared textures
     int num_textures = sizeof(texture) / sizeof(char *);
@@ -352,11 +355,11 @@ void Game::HandleControls(double delta_time)
     // Check for player input and make changes accordingly
     if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
         //player->SetPosition(curpos + motion_increment*dir);
-        player->SetVelocity(glm::vec3(0.0f, 5.0f, 0.0f));
+        if (player->GetAlive()) player->SetVelocity(glm::vec3(0.0f, 5.0f, 0.0f));
     }
     else if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
         //player->SetPosition(curpos - motion_increment*dir);
-        player->SetVelocity(glm::vec3(0.0f, -3.0f, 0.0f));
+        if (player->GetAlive()) player->SetVelocity(glm::vec3(0.0f, -3.0f, 0.0f));
     }
     //if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
     //    player->SetRotation(angle - angle_increment);
@@ -366,11 +369,11 @@ void Game::HandleControls(double delta_time)
     //}
     else if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
         //player->SetPosition(curpos - motion_increment*player->GetRight());
-        player->SetVelocity(glm::vec3(-4.0f, 1.0f, 0.0f));
+        if (player->GetAlive()) player->SetVelocity(glm::vec3(-4.0f, 1.0f, 0.0f));
     }
     else if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
         //player->SetPosition(curpos + motion_increment*player->GetRight());
-        player->SetVelocity(glm::vec3(4.0f, 1.0f, 0.0f));
+        if (player->GetAlive()) player->SetVelocity(glm::vec3(4.0f, 1.0f, 0.0f));
     }
     else {
         player->SetVelocity(glm::vec3(0.0f, 1.0f, 0.0f));
@@ -379,37 +382,41 @@ void Game::HandleControls(double delta_time)
         glfwSetWindowShouldClose(window_, true);
     }
     if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-        if (current_time_ > next_shot_){
-            GameObject *player = game_objects_[0];
-            Bullet *bullet = new Bullet(player->GetPosition(), sprite_, &sprite_shader_, tex_[9], 1.0f, 1.0f, 1);
-            bullet->SetRotation(player->GetRotation()-glm::pi<float>()/2.0);
-            bullet->SetVelocity(18.0f*player->GetBearing());
-            //bullet->SetScale(0.5f);
-            bullet->SetOrigin(player->GetPosition());
-            game_objects_.insert(game_objects_.begin()+1, bullet);
-            next_shot_ = current_time_ + 0.25;
+        if (player->GetAlive()) {
+            if (current_time_ > next_shot_) {
+                GameObject* player = game_objects_[0];
+                Bullet* bullet = new Bullet(player->GetPosition(), sprite_, &sprite_shader_, tex_[9], 1.0f, 1.0f, 1);
+                bullet->SetRotation(player->GetRotation() - glm::pi<float>() / 2.0);
+                bullet->SetVelocity(18.0f * player->GetBearing());
+                //bullet->SetScale(0.5f);
+                bullet->SetOrigin(player->GetPosition());
+                game_objects_.insert(game_objects_.begin() + 1, bullet);
+                next_shot_ = current_time_ + 0.25;
+            }
         }
     }
     if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
-        if (current_time_ > next_torpedo_) {
-            GameObject* player = game_objects_[0];
-            Bullet* torpedo = new Bullet(player->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
-            torpedo->SetRotation(glm::pi<float>() / 2.0);
-            torpedo->SetVelocity(8.0f * player->GetBearing());
-            //bullet->SetScale(0.5f);
-            torpedo->SetOrigin(player->GetPosition());
-            torpedo->SetType(TorpedoObj);
-            game_objects_.insert(game_objects_.begin() + 1, torpedo);
+        if (player->GetAlive()) {
+            if (current_time_ > next_torpedo_) {
+                GameObject* player = game_objects_[0];
+                Bullet* torpedo = new Bullet(player->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
+                torpedo->SetRotation(glm::pi<float>() / 2.0);
+                torpedo->SetVelocity(8.0f * player->GetBearing());
+                //bullet->SetScale(0.5f);
+                torpedo->SetOrigin(player->GetPosition());
+                torpedo->SetType(TorpedoObj);
+                game_objects_.insert(game_objects_.begin() + 1, torpedo);
 
-            GameObject* particles = new ParticleSystem(glm::vec3(-0.6f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo, 1.0f, 1.0f, 1);
-            particles->SetScale(0.1);
-            particles->SetRotation(-glm::pi<float>() / 2.0);
-            torpedo->SetParticles(particles);
-            
+                GameObject* particles = new ParticleSystem(glm::vec3(-0.6f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo, 1.0f, 1.0f, 1);
+                particles->SetScale(0.1);
+                particles->SetRotation(-glm::pi<float>() / 2.0);
+                torpedo->SetParticles(particles);
 
-            
-            game_objects_.push_back(particles);
-            next_torpedo_ = current_time_ + 5.0;
+
+
+                game_objects_.push_back(particles);
+                next_torpedo_ = current_time_ + 5.0;
+            }
         }
     }
     
@@ -424,30 +431,124 @@ void Game::Update(double delta_time)
     current_time_ += delta_time;
 
     score_ = (killcount_ * 100);
+
+    std::vector<GameObject*> to_erase;
     //if ((fmod(current_time_, 1) <= 0.01) && (fmod(current_time_, 1) >= 0.0)) std::cout << current_time_ << std::endl;
     //std::cout << fmod(current_time_, 1) << std::endl;
     seconds_ = (int)(current_time_ + 0.5);
     if (seconds_ > lastSecond_) {
         lastSecond_ = seconds_;
         if (fmod(lastSecond_, 10) == 0 && lastSecond_ > 0) {
-            /*MineEnemyObject* newMine = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 4.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
-            newMine->SetType(MineObj);
-            game_objects_.insert(game_objects_.end() - 2, newMine);
-            SharkEnemyObject* newShark = new SharkEnemyObject(camera_position_ + glm::vec3(-3.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[12], 1.0f, 1.0f, 1);
-            newShark->SetTarget(player);
-            newShark->SetScale(2.0f);
-            newShark->SetType(SharkObj);
-            newShark->SetNextShot(current_time_ + 1.0);
-            game_objects_.insert(game_objects_.end() - 2, newShark);*/
+            
+            if (lastSecond_ == 10) {
+                MineEnemyObject* mine1 = new MineEnemyObject(camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f));
+                mine1->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine1->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine1);
+                
+                MineEnemyObject* mine2 = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
+                mine2->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine2->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine2);
+                
+            }
+            else if (lastSecond_ == 20) {
+                MineEnemyObject* mine1 = new MineEnemyObject(camera_position_ + glm::vec3(-1.5f, 4.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f)); 
+                mine1->SetVelocity(glm::vec3(0.0, 1.0, 0.0)); 
+                mine1->SetType(MineObj); 
+                game_objects_.insert(game_objects_.begin() + 1, mine1); 
 
+                MineEnemyObject* mine2 = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
+                mine2->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine2->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine2);
 
+                MineEnemyObject* mine3 = new MineEnemyObject(camera_position_ + glm::vec3(2.0f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(2.0f, 5.5f, 0.0f));
+                mine3->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine3->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine3);
+
+                MineEnemyObject* mine4 = new MineEnemyObject(camera_position_ + glm::vec3(1.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(1.0f, 6.0f, 0.0f));
+                mine4->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine4->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine4);
+
+                MineEnemyObject* mine5 = new MineEnemyObject(camera_position_ + glm::vec3(-2.5f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(-2.5f, 6.0f, 0.0f));
+                mine5->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine5->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine5);
+
+                MineEnemyObject* mine6 = new MineEnemyObject(camera_position_ + glm::vec3(2.5f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(2.5f, 5.5f, 0.0f));
+                mine6->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine6->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine6);
+            }
+            else if (lastSecond_ == 30) {
+
+            }
+            else if (lastSecond_ == 40) {
+
+            }
+            else if (lastSecond_ == 50) {
+
+            }
+            else if (lastSecond_ == 60) {
+
+            }
+            else if (lastSecond_ == 70) {
+
+            }
+            else if (lastSecond_ == 80) {
+
+            }
+            else if (lastSecond_ == 90) {
+
+            }
+            else if (lastSecond_ == 100) {
+
+            }
+            else if (lastSecond_ == 120) {
+                float pi_over_two = glm::pi<float>() / 2.0f;
+                BossSubObject* boss = new BossSubObject(camera_position_ + glm::vec3(0.0f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[19], 1.0f, 1.25f, 20);
+                boss->SetScale(8.0f);
+                boss->SetTarget(player);
+                //boss->SetRotation(3* pi_over_two);
+                boss->SetType(BossObj);
+                game_objects_.insert(game_objects_.begin() + 1, boss);
+
+                BossTurretObject* turret1 = new BossTurretObject(glm::vec3(-3.55f, 1.4f, -0.5f), sprite_, &sprite_shader_, tex_[16], boss, glm::vec3(-3.55f, 1.4f, -0.5f), 1.0f, 1.0f, 10);
+                turret1->SetTarget(player);
+                turret1->SetScale(3.0f);
+                turret1->SetRotation(-pi_over_two);
+                turret1->SetType(TurretObj);
+                BossTurretObject* turret2 = new BossTurretObject(glm::vec3(-1.95f, 1.4f, -0.5f), sprite_, &sprite_shader_, tex_[16], boss, glm::vec3(-3.55f, 1.4f, -0.5f), 1.0f, 1.0f, 10);
+                turret2->SetTarget(player);
+                turret2->SetScale(3.0f);
+                turret2->SetRotation(-pi_over_two);
+                turret2->SetType(TurretObj);
+                BossTurretObject* turret3 = new BossTurretObject(glm::vec3(1.95f, 1.4f, -0.5f), sprite_, &sprite_shader_, tex_[16], boss, glm::vec3(-3.55f, 1.4f, -0.5f), 1.0f, 1.0f, 10);
+                turret3->SetTarget(player);
+                turret3->SetScale(3.0f);
+                turret3->SetRotation(-pi_over_two);
+                turret3->SetType(TurretObj);
+                BossTurretObject* turret4 = new BossTurretObject(glm::vec3(3.55f, 1.4f, -0.5f), sprite_, &sprite_shader_, tex_[16], boss, glm::vec3(-3.55f, 1.4f, -0.5f), 1.0f, 1.0f, 10);
+                turret4->SetTarget(player);
+                turret4->SetScale(3.0f);
+                turret4->SetRotation(-pi_over_two);
+                turret4->SetType(TurretObj);
+
+                game_objects_.insert(game_objects_.begin() + 1, turret1);
+                game_objects_.insert(game_objects_.begin() + 1, turret2);
+                game_objects_.insert(game_objects_.begin() + 1, turret3);
+                game_objects_.insert(game_objects_.begin() + 1, turret4);
+            }
         }
     }
 
     
 
     // List of objects to be removed at the end of the update
-    std::vector<GameObject*> to_erase;
+    
     
     // Update all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
@@ -459,6 +560,7 @@ void Game::Update(double delta_time)
         if (current_game_object->GetType() == PlayerObj) {
             PlayerGameObject* player = dynamic_cast<PlayerGameObject*>(current_game_object);
             player->Update(delta_time, camera_position_);
+            if (!player->GetAlive() && player->GetDeath()->Finished()) player_dead_ = true;
         }
         else if (current_game_object->GetType() == TimerObj) {
             TextGameObject* timer = dynamic_cast<TextGameObject*>(current_game_object);
@@ -480,117 +582,126 @@ void Game::Update(double delta_time)
             std::string scoreVal = std::to_string(score_);
             score->SetText("|Score: " + scoreVal);
         }
-        else if (current_game_object->GetType() == SubObj){
+        else if (current_game_object->GetType() == SubObj) {
             SubEnemyObject* sub = dynamic_cast<SubEnemyObject*>(current_game_object);
             sub->Update(delta_time, camera_position_);
+            if (sub->GetAlive()) {
+                if (current_time_ > sub->GetNextShot()) {
+                    Bullet* torpedo1 = new Bullet(sub->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
+                    torpedo1->SetRotation(sub->GetRotation() + glm::pi<float>() / 4.0);
+                    torpedo1->SetVelocity(3.0f * sub->GetBottomRight());
+                    torpedo1->SetScale(0.75f);
+                    torpedo1->SetOrigin(sub->GetPosition() - glm::vec3(0.0f, 0.55f, 0.0f));
+                    torpedo1->SetType(SubTorpedoObj);
+                    game_objects_.insert(game_objects_.begin() + 1, torpedo1);
 
-            if (current_time_ > sub->GetNextShot()) {
-                Bullet* torpedo1 = new Bullet(sub->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
-                torpedo1->SetRotation(sub->GetRotation() + glm::pi<float>() / 4.0);
-                torpedo1->SetVelocity(3.0f * sub->GetBottomRight());
-                torpedo1->SetScale(0.75f);
-                torpedo1->SetOrigin(sub->GetPosition() - glm::vec3(0.0f, 0.55f, 0.0f));
-                torpedo1->SetType(SubTorpedoObj);
-                game_objects_.insert(game_objects_.begin() + 1, torpedo1);
+                    GameObject* particles1 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo1, 1.0f, 1.0f, 1);
+                    particles1->SetScale(0.1);
+                    particles1->SetRotation(sub->GetRotation());
+                    torpedo1->SetParticles(particles1);
+                    game_objects_.push_back(particles1);
 
-                GameObject* particles1 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo1, 1.0f, 1.0f, 1);
-                particles1->SetScale(0.1);
-                particles1->SetRotation(sub->GetRotation());
-                torpedo1->SetParticles(particles1);
-                game_objects_.push_back(particles1);
-                
-                Bullet* torpedo2 = new Bullet(sub->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
-                torpedo2->SetRotation(sub->GetRotation() - glm::pi<float>() / 4.0);
-                torpedo2->SetVelocity(3.0f * sub->GetBottomLeft());
-                torpedo2->SetScale(0.75f);
-                torpedo2->SetOrigin(sub->GetPosition() - glm::vec3(0.0f, 0.55f, 0.0f));
-                torpedo2->SetType(SubTorpedoObj);
-                game_objects_.insert(game_objects_.begin() + 1, torpedo2);
-                sub->SetNextShot(current_time_ + 3.0);
+                    Bullet* torpedo2 = new Bullet(sub->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
+                    torpedo2->SetRotation(sub->GetRotation() - glm::pi<float>() / 4.0);
+                    torpedo2->SetVelocity(3.0f * sub->GetBottomLeft());
+                    torpedo2->SetScale(0.75f);
+                    torpedo2->SetOrigin(sub->GetPosition() - glm::vec3(0.0f, 0.55f, 0.0f));
+                    torpedo2->SetType(SubTorpedoObj);
+                    game_objects_.insert(game_objects_.begin() + 1, torpedo2);
+                    sub->SetNextShot(current_time_ + 3.0);
 
-                GameObject* particles2 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo2, 1.0f, 1.0f, 1);
-                particles2->SetScale(0.1);
-                particles2->SetRotation(sub->GetRotation());
-                torpedo2->SetParticles(particles2);
-                game_objects_.push_back(particles2);
+                    GameObject* particles2 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo2, 1.0f, 1.0f, 1);
+                    particles2->SetScale(0.1);
+                    particles2->SetRotation(sub->GetRotation());
+                    torpedo2->SetParticles(particles2);
+                    game_objects_.push_back(particles2);
+                }
             }
         }
         else if (current_game_object->GetType() == BossObj) {
             BossSubObject* boss = dynamic_cast<BossSubObject*>(current_game_object);
             boss->Update(delta_time, camera_position_);
+            if (boss->GetAlive()) {
+                if (current_time_ > boss->GetNextShot()) {
+                    Bullet* torpedo1 = new Bullet(boss->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
+                    torpedo1->SetRotation(boss->GetRotation() - (3 * glm::pi<float>()) / 4.0);
+                    torpedo1->SetVelocity(3.0f * -boss->GetBottomRight());
+                    torpedo1->SetScale(0.75f);
+                    torpedo1->SetOrigin(boss->GetPosition() + glm::vec3(0.0f, 0.8f, 0.0f));
+                    torpedo1->SetType(SubTorpedoObj);
+                    game_objects_.insert(game_objects_.begin() + 1, torpedo1);
 
-            if (current_time_ > boss->GetNextShot()) {
-                Bullet* torpedo1 = new Bullet(boss->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
-                torpedo1->SetRotation(boss->GetRotation() - (3 * glm::pi<float>()) / 4.0);
-                torpedo1->SetVelocity(3.0f * -boss->GetBottomRight());
-                torpedo1->SetScale(0.75f);
-                torpedo1->SetOrigin(boss->GetPosition() + glm::vec3(0.0f, 0.8f, 0.0f));
-                torpedo1->SetType(SubTorpedoObj);
-                game_objects_.insert(game_objects_.begin() + 1, torpedo1);
+                    GameObject* particles1 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo1, 1.0f, 1.0f, 1);
+                    particles1->SetScale(0.1);
+                    particles1->SetRotation(torpedo1->GetRotation() + glm::pi<float>() / 4.0);
+                    torpedo1->SetParticles(particles1);
+                    game_objects_.push_back(particles1);
 
-                GameObject* particles1 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo1, 1.0f, 1.0f, 1);
-                particles1->SetScale(0.1);
-                particles1->SetRotation(torpedo1->GetRotation() + glm::pi<float>() / 4.0);
-                torpedo1->SetParticles(particles1);
-                game_objects_.push_back(particles1);
+                    Bullet* torpedo2 = new Bullet(boss->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
+                    torpedo2->SetRotation(boss->GetRotation() - glm::pi<float>() / 4.0);
+                    torpedo2->SetVelocity(3.0f * boss->GetBottomLeft());
+                    torpedo2->SetScale(0.75f);
+                    torpedo2->SetOrigin(boss->GetPosition() + glm::vec3(0.0f, 0.8f, 0.0f));
+                    torpedo2->SetType(SubTorpedoObj);
+                    game_objects_.insert(game_objects_.begin() + 1, torpedo2);
 
-                Bullet* torpedo2 = new Bullet(boss->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
-                torpedo2->SetRotation(boss->GetRotation() - glm::pi<float>() / 4.0);
-                torpedo2->SetVelocity(3.0f * boss->GetBottomLeft());
-                torpedo2->SetScale(0.75f);
-                torpedo2->SetOrigin(boss->GetPosition() + glm::vec3(0.0f, 0.8f, 0.0f));
-                torpedo2->SetType(SubTorpedoObj);
-                game_objects_.insert(game_objects_.begin() + 1, torpedo2);
+                    GameObject* particles2 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo2, 1.0f, 1.0f, 1);
+                    particles2->SetScale(0.1);
+                    particles2->SetRotation(torpedo2->GetRotation() - glm::pi<float>() / 4.0);
+                    torpedo2->SetParticles(particles2);
+                    game_objects_.push_back(particles2);
 
-                GameObject* particles2 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo2, 1.0f, 1.0f, 1);
-                particles2->SetScale(0.1);
-                particles2->SetRotation(torpedo2->GetRotation() - glm::pi<float>() / 4.0);
-                torpedo2->SetParticles(particles2);
-                game_objects_.push_back(particles2);
+                    Bullet* torpedo3 = new Bullet(boss->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
+                    torpedo3->SetRotation(boss->GetRotation() - glm::pi<float>() / 2.0);
+                    torpedo3->SetVelocity(3.0f * boss->GetRight());
+                    torpedo3->SetScale(0.75f);
+                    torpedo3->SetOrigin(boss->GetPosition() + glm::vec3(0.0f, 0.8f, 0.0f));
+                    torpedo3->SetType(SubTorpedoObj);
+                    game_objects_.insert(game_objects_.begin() + 1, torpedo3);
+                    if (turret_killcount_ < 2) boss->SetNextShot(current_time_ + 3.0);
+                    else if (turret_killcount_ < 3) boss->SetNextShot(current_time_ + 2.5);
+                    else if (turret_killcount_ < 4) boss->SetNextShot(current_time_ + 2.0);
+                    else boss->SetNextShot(current_time_ + 1.0);
 
-                Bullet* torpedo3 = new Bullet(boss->GetPosition(), sprite_, &sprite_shader_, tex_[14], 1.0f, 1.0f, 1);
-                torpedo3->SetRotation(boss->GetRotation() - glm::pi<float>() / 2.0);
-                torpedo3->SetVelocity(3.0f * boss->GetRight());
-                torpedo3->SetScale(0.75f);
-                torpedo3->SetOrigin(boss->GetPosition() + glm::vec3(0.0f, 0.8f, 0.0f));
-                torpedo3->SetType(SubTorpedoObj);
-                game_objects_.insert(game_objects_.begin() + 1, torpedo3);
-                boss->SetNextShot(current_time_ + 3.0);
-
-                GameObject* particles3 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo3, 1.0f, 1.0f, 1);
-                particles3->SetScale(0.1);
-                particles3->SetRotation(torpedo3->GetRotation());
-                torpedo3->SetParticles(particles3);
-                game_objects_.push_back(particles3);
+                    GameObject* particles3 = new ParticleSystem(glm::vec3(-0.45f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[4], torpedo3, 1.0f, 1.0f, 1);
+                    particles3->SetScale(0.1);
+                    particles3->SetRotation(torpedo3->GetRotation());
+                    torpedo3->SetParticles(particles3);
+                    game_objects_.push_back(particles3);
+                }
             }
+            if (!boss->GetAlive() && boss->GetDeath()->Finished()) boss_dead_ = true;
+            if (boss_vuln_ == true) boss->SetTexture(tex_[15]);
         }
         else current_game_object->Update(delta_time);
 
         // Shark firing
         if (current_game_object->GetType() == SharkObj) {
             SharkEnemyObject* shark = dynamic_cast<SharkEnemyObject*>(current_game_object);
-            
-            if (current_time_ > shark->GetNextShot()) {
-                Bullet* bullet = new Bullet(shark->GetPosition(), sprite_, &sprite_shader_, tex_[9], 1.0f, 1.0f, 1);
-                bullet->SetRotation(shark->GetRotation() - glm::pi<float>() / 2.0);
-                bullet->SetVelocity(4.0f * shark->GetBearing());
-                bullet->SetOrigin(shark->GetPosition());
-                bullet->SetType(SharkBulletObj);
-                game_objects_.insert(game_objects_.begin() + 1, bullet);
-                shark->SetNextShot(current_time_ + 2.0);
+            if (shark->GetAlive()) {
+                if (current_time_ > shark->GetNextShot()) {
+                    Bullet* bullet = new Bullet(shark->GetPosition(), sprite_, &sprite_shader_, tex_[9], 1.0f, 1.0f, 1);
+                    bullet->SetRotation(shark->GetRotation() - glm::pi<float>() / 2.0);
+                    bullet->SetVelocity(4.0f * shark->GetBearing());
+                    bullet->SetOrigin(shark->GetPosition());
+                    bullet->SetType(SharkBulletObj);
+                    game_objects_.insert(game_objects_.begin() + 1, bullet);
+                    shark->SetNextShot(current_time_ + 2.0);
+                }
             }
         } // Turret firing
         else if (current_game_object->GetType() == TurretObj) {
             BossTurretObject* turret = dynamic_cast<BossTurretObject*>(current_game_object);
-
-            if (current_time_ > turret->GetNextShot()) {
-                Bullet* bullet = new Bullet(turret->GetFakePosition(), sprite_, &sprite_shader_, tex_[9], 1.0f, 1.0f, 1);
-                bullet->SetRotation(turret->GetRotation() - glm::pi<float>());
-                bullet->SetVelocity(5.0f * turret->GetRight());
-                bullet->SetOrigin(turret->GetFakePosition());
-                bullet->SetType(SharkBulletObj);
-                game_objects_.insert(game_objects_.begin() + 1, bullet);
-                turret->SetNextShot(current_time_ + 2.0);
+            if (turret->GetAlive()) {
+                if (current_time_ > turret->GetNextShot()) {
+                    Bullet* bullet = new Bullet(turret->GetFakePosition(), sprite_, &sprite_shader_, tex_[9], 1.0f, 1.0f, 1);
+                    bullet->SetRotation(turret->GetRotation());
+                    bullet->SetVelocity(5.0f * -turret->GetRight());
+                    bullet->SetOrigin(turret->GetFakePosition());
+                    bullet->SetType(SharkBulletObj);
+                    game_objects_.insert(game_objects_.begin() + 1, bullet);
+                    turret->SetNextShot(current_time_ + 2.0);
+                }
             }
 
         }
@@ -609,7 +720,22 @@ void Game::Update(double delta_time)
                         // Don't remove objects now
                         // Add them to a list to remove them later (code down below)
                         //to_erase.push_back(othwer_game_object);
-                        if (other_game_object->TakeDamage(1) == true) killcount_++;
+                        if (other_game_object->TakeDamage(1 * damage_factor_) == true) {
+                            killcount_++;
+                            other_game_object->GetDeath()->Start(0.15);
+                            ParticleSystem* explosion = new ParticleSystem(glm::vec3(0.0f, 1.0f, -2.0f), explosion_particles_, &particle_shader_, tex_[4], other_game_object, 1.0f, 1.0f, 1);
+                            explosion->SetScale(0.25f);
+                            explosion->SetType(PSystemExplosionObj);
+                            other_game_object->SetParticles(explosion);
+                            game_objects_.push_back(explosion);
+
+                            if (killcount_ % 10 == 0) {
+                                ItemGameObject* powerUp = new ItemGameObject(other_game_object->GetPosition(), sprite_, &sprite_shader_, tex_[21], 1.0f, 1.0f, 1);
+                                powerUp->SetItemType(InvinciblePower);
+                                powerUp->SetScale(1.5);
+                                game_objects_.insert(game_objects_.begin() + 1, powerUp);
+                            }
+                        }
                         //to_erase.push_back(bullet);
                         bullet->SetAlive(false);
                         // If an intersection happened and objects will be removed,
@@ -619,28 +745,42 @@ void Game::Update(double delta_time)
                 }
                 else if (other_game_object->GetType() == TurretObj) {
                     BossTurretObject* turret = dynamic_cast<BossTurretObject*>(other_game_object);
-                    if (bullet->CheckCollision(turret->GetFakePosition(), turret->GetScale() * 0.1)) {
-                        // Don't remove objects now
-                        // Add them to a list to remove them later (code down below)
-                        //to_erase.push_back(other_game_object);
-                        if (other_game_object->TakeDamage(1) == true) {
-                            killcount_++;
-                            turret_killcount_++;
+                    if (turret->GetAlive()) {
+                        if (bullet->CheckCollision(turret->GetFakePosition(), turret->GetScale() * 0.1)) {
+                            // Don't remove objects now
+                            // Add them to a list to remove them later (code down below)
+                            //to_erase.push_back(other_game_object);
+                            if (turret->TakeDamage(1 * damage_factor_) == true) {
+                                killcount_++;
+                                turret_killcount_++;
+                                turret->GetDeath()->Start(0.25);
+                                if (turret_killcount_ >= 4) {
+                                    boss_vuln_ = true;
+                                }
+                            }
+                            //to_erase.push_back(bullet);
+                            bullet->SetAlive(false);
+                            // If an intersection happened and objects will be removed,
+                            // don't check for more intersections
+                            break;
                         }
-                        //to_erase.push_back(bullet);
-                        bullet->SetAlive(false);
-                        // If an intersection happened and objects will be removed,
-                        // don't check for more intersections
-                        break;
                     }
+                    
                 }
-                else if (other_game_object->GetType() == BossObj && turret_killcount_ == 4) {
+                else if (other_game_object->GetType() == BossObj && turret_killcount_ >= 4) {
                     BossSubObject* boss = dynamic_cast<BossSubObject*>(other_game_object);
 
                     if (bullet->CheckCollision(boss->GetPosition(), boss->GetScale() * 0.1)) {
                         // Don't remove objects now
                         // Add them to a list to remove them later (code down below)
-                        if (boss->TakeDamage(1) == true) boss_dead_ = true;
+                        if (boss->TakeDamage(1 * damage_factor_) == true) {
+                            boss->GetDeath()->Start(3.0);
+                            ParticleSystem* explosion = new ParticleSystem(glm::vec3(0.0f, 1.0f, -2.0f), explosion_particles_, &particle_shader_, tex_[4], boss, 1.0f, 1.0f, 1);
+                            explosion->SetScale(0.8f);
+                            explosion->SetType(PSystemExplosionObj);
+                            boss->SetParticles(explosion);
+                            game_objects_.push_back(explosion);
+                        }
                         //to_erase.push_back(bullet);
                         bullet->SetAlive(false);
                         // If an intersection happened and objects will be removed,
@@ -661,7 +801,22 @@ void Game::Update(double delta_time)
                         // Don't remove objects now
                         // Add them to a list to remove them later (code down below)
                         //to_erase.push_back(other_game_object);
-                        if (other_game_object->TakeDamage(3) == true) killcount_++;
+                        if (other_game_object->TakeDamage(3 * damage_factor_) == true) {
+                            killcount_++;
+                            other_game_object->GetDeath()->Start(0.15);
+                            ParticleSystem* explosion = new ParticleSystem(glm::vec3(0.0f, 1.0f, -2.0f), explosion_particles_, &particle_shader_, tex_[4], other_game_object, 1.0f, 1.0f, 1);
+                            explosion->SetScale(0.25f);
+                            explosion->SetType(PSystemExplosionObj);
+                            other_game_object->SetParticles(explosion);
+                            game_objects_.push_back(explosion);
+
+                            if (killcount_ % 10 == 0) {
+                                ItemGameObject* powerUp = new ItemGameObject(camera_position_ + glm::vec3(0.0f, 2.0f, 0.0f), sprite_, &sprite_shader_, tex_[21], 1.0f, 1.0f, 1); 
+                                powerUp->SetItemType(InvinciblePower);
+                                powerUp->SetScale(1.5);
+                                game_objects_.insert(game_objects_.begin() + 1, powerUp); 
+                            }
+                        }
                         //to_erase.push_back(bullet);
                         bullet->SetAlive(false);
                         // If an intersection happened and objects will be removed,
@@ -671,28 +826,43 @@ void Game::Update(double delta_time)
                 }
                 else if (other_game_object->GetType() == TurretObj) {
                     BossTurretObject* turret = dynamic_cast<BossTurretObject*>(other_game_object);
-                    if (bullet->CheckCollision(turret->GetFakePosition(), turret->GetScale() * 0.2)) {
-                        // Don't remove objects now
-                        // Add them to a list to remove them later (code down below)
-                        //to_erase.push_back(other_game_object);
-                        if (other_game_object->TakeDamage(3) == true) {
-                            killcount_++;
-                            turret_killcount_++;
+                    if (turret->GetAlive()) {
+                        if (bullet->CheckCollision(turret->GetFakePosition(), turret->GetScale() * 0.2)) {
+                            // Don't remove objects now
+                            // Add them to a list to remove them later (code down below)
+                            //to_erase.push_back(other_game_object);
+                            if (turret->TakeDamage(3 * damage_factor_) == true) {
+                                killcount_++;
+                                turret_killcount_++;
+                                turret->GetDeath()->Start(0.25);
+                                if (turret_killcount_ >= 4) {
+                                    boss_vuln_ = true;
+                                }
+                            }
+                            //to_erase.push_back(bullet);
+                            bullet->SetAlive(false);
+                            // If an intersection happened and objects will be removed,
+                            // don't check for more intersections
+                            break;
                         }
-                        //to_erase.push_back(bullet);
-                        bullet->SetAlive(false);
-                        // If an intersection happened and objects will be removed,
-                        // don't check for more intersections
-                        break;
                     }
+                    
                 }
-                else if (other_game_object->GetType() == BossObj && turret_killcount_ == 4) {
+                else if (other_game_object->GetType() == BossObj && turret_killcount_ >= 4) {
                     BossSubObject* boss = dynamic_cast<BossSubObject*>(other_game_object);
 
                     if (bullet->CheckCollision(boss->GetPosition(), boss->GetScale() * 0.2)) {
                         // Don't remove objects now
                         // Add them to a list to remove them later (code down below)
-                        if (boss->TakeDamage(3) == true) boss_dead_ = true;
+                        if (boss->TakeDamage(3 * damage_factor_) == true) {
+                            //boss_dead_ = true;
+                            boss->GetDeath()->Start(3.0);
+                            ParticleSystem* explosion = new ParticleSystem(glm::vec3(0.0f, 1.0f, -2.0f), explosion_particles_, &particle_shader_, tex_[4], boss, 1.0f, 1.0f, 1);
+                            explosion->SetScale(0.8f);
+                            explosion->SetType(PSystemExplosionObj);
+                            boss->SetParticles(explosion);
+                            game_objects_.push_back(explosion);
+                        }
                         //to_erase.push_back(bullet);
                         bullet->SetAlive(false);
                         // If an intersection happened and objects will be removed,
@@ -708,7 +878,10 @@ void Game::Update(double delta_time)
             if (bullet->CheckCollision(player->GetPosition(), player->GetScale() * 0.6)) {
                 // Don't remove objects now
                 // Add them to a list to remove them later (code down below)
-                if (player->TakeDamage(1) == true) player_dead_ = true;
+                if (player->TakeDamage(1) == true) {
+                    
+                    player->GetDeath()->Start(1.0);
+                }
                 //to_erase.push_back(bullet);
                 bullet->SetAlive(false);
                // If an intersection happened and objects will be removed,
@@ -723,7 +896,10 @@ void Game::Update(double delta_time)
            if (bullet->CheckCollision(player->GetPosition(), player->GetScale() * 0.6)) {
                // Don't remove objects now
                // Add them to a list to remove them later (code down below)
-               if (player->TakeDamage(3) == true) player_dead_ = true;
+               if (player->TakeDamage(3) == true) {
+
+                   player->GetDeath()->Start(1.0);
+               }
                //to_erase.push_back(bullet);
                bullet->SetAlive(false);
                // If an intersection happened and objects will be removed,
@@ -741,25 +917,69 @@ void Game::Update(double delta_time)
                 float distance = glm::length(current_game_object->GetPosition() - other_game_object->GetPosition());
                 // If distance is below a threshold, we have a collision
                 if (distance < 0.9f) {
-                    if (other_game_object->GetType() == MineObj && current_game_object->GetType() == PlayerObj) {
-                        current_game_object->TakeDamage(5);
-                        //to_erase.push_back(other_game_object);
-                        other_game_object->SetAlive(false);
+                    if (other_game_object->GetAlive()) {
+                        if (other_game_object->GetType() == MineObj && current_game_object->GetType() == PlayerObj) {
+                            if (current_game_object->TakeDamage(5) == true) {
+
+                                current_game_object->GetDeath()->Start(1.0);
+                            }
+                            //to_erase.push_back(other_game_object);
+                            other_game_object->SetAlive(false);
+                            killcount_++;
+                            other_game_object->GetDeath()->Start(0.15);
+                            ParticleSystem* explosion = new ParticleSystem(glm::vec3(0.0f, 1.0f, -2.0f), explosion_particles_, &particle_shader_, tex_[4], other_game_object, 1.0f, 1.0f, 1);
+                            explosion->SetScale(0.25f);
+                            explosion->SetType(PSystemExplosionObj);
+                            other_game_object->SetParticles(explosion);
+                            game_objects_.push_back(explosion);
+
+                        }
+                        else if ((other_game_object->GetType() == SharkObj || other_game_object->GetType() == SubObj) && current_game_object->GetType() == PlayerObj) {
+                            if (current_game_object->TakeDamage(2) == true) {
+
+                                current_game_object->GetDeath()->Start(1.0);
+                            }
+                            //to_erase.push_back(other_game_object);
+                            other_game_object->SetAlive(false);
+                            killcount_++;
+                            ParticleSystem* explosion = new ParticleSystem(glm::vec3(0.0f, 1.0f, -2.0f), explosion_particles_, &particle_shader_, tex_[4], other_game_object, 1.0f, 1.0f, 1);
+                            explosion->SetScale(0.25f);
+                            explosion->SetType(PSystemExplosionObj);
+                            other_game_object->SetParticles(explosion);
+                            game_objects_.push_back(explosion);
+
+                        }
+                        else if (other_game_object->GetType() == ItemObj) {
+                            ItemGameObject* item = dynamic_cast<ItemGameObject*>(other_game_object);
+                            if (item->GetItemType() == RepairKit) {
+                                score_ += 250;
+                                player->RepairHealth(player->GetMaxHealth() / 2);
+                                other_game_object->SetAlive(false);
+                            }
+                            else if (item->GetItemType() == DamageUpgrade) {
+                                score_ += 250;
+                                damage_factor_++;
+                                other_game_object->SetAlive(false);
+                            }
+                            else if (item->GetItemType() == InvinciblePower) {
+                                std::cout << "Powerup" << std::endl;
+                                score_ += 500;
+                                player->PowerUp();
+                                player->SetTexture(tex_[18]);
+                                other_game_object->SetAlive(false);
+                            }
+                        }
                     }
-                    else if ((other_game_object->GetType() == SharkObj || other_game_object->GetType() == SubObj) && current_game_object->GetType() == PlayerObj) {
-                        if (current_game_object->TakeDamage(2) == true) player_dead_ = true;
-                        //to_erase.push_back(other_game_object);
-                        other_game_object->SetAlive(false);
-                        killcount_++;
-                    }
-                    // This is where you would perform collision response between objects
+                    
                 }
             }
         }
-        if (!current_game_object->GetAlive()) {
+        if (!current_game_object->GetAlive() && current_game_object->GetDeath()->Finished()) {
             to_erase.push_back(current_game_object);
         }
     }
+
+    if (!player->GetInvincible()) player->SetTexture(tex_[6]);
 
     // Remove game objects save in the to_erase vector
     for (int i = 0; i < to_erase.size(); i++){
@@ -767,7 +987,7 @@ void Game::Update(double delta_time)
             if (game_objects_[j] == to_erase[i]){
                 delete game_objects_[j];
                 game_objects_.erase(game_objects_.begin() + j);
-                std::cout << "SOMETHING WAS DELETED" << std::endl;
+                //std::cout << "SOMETHING WAS DELETED" << std::endl;
                 break;
             }
         }

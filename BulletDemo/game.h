@@ -39,6 +39,8 @@ namespace game {
             // Particle geometry
             Geometry *particles_;
 
+            Geometry* explosion_particles_;
+
             // Tile geometry
             Geometry* tile_;
 
@@ -69,6 +71,9 @@ namespace game {
             bool player_dead_;
             int turret_killcount_;
             bool boss_dead_;
+            bool boss_vuln_;
+
+            int damage_factor_;
 
             int score_;
 

@@ -12,8 +12,8 @@
 namespace game {
 
     enum ObjectType { GenericObj, PlayerObj, EnemyObj, MineObj, 
-        SharkObj, SubObj, BulletObj, SharkBulletObj, PSystemObj, 
-        BackgroundObj, TimerObj, HealthObj, ScoreObj, TorpedoObj, SubTorpedoObj, BossObj, TurretObj };
+        SharkObj, SubObj, BulletObj, SharkBulletObj, PSystemObj, PSystemExplosionObj,
+        BackgroundObj, ExplainObj, TimerObj, HealthObj, ScoreObj, TorpedoObj, SubTorpedoObj, BossObj, TurretObj, ItemObj };
 
     /*
         GameObject is responsible for handling the rendering and updating of one object in the game world
@@ -37,6 +37,7 @@ namespace game {
             inline float GetRotation(void) const { return angle_; }
             inline int GetHealth(void) const { return health_; }
 
+
             // Get bearing direction (direction in which the game object
             // is facing)
             glm::vec3 GetBearing(void) const;
@@ -50,8 +51,13 @@ namespace game {
 
             inline void SetParticles(GameObject* particle) { particles_ = particle; }
 
+            inline bool GetInvincible(void) const { return invincible_; }
+            void PowerUp(void);
+
             inline bool GetAlive(void) const { return alive_; }
             void SetAlive(bool value);
+
+            inline Timer* GetDeath(void) const { return death_timer_; }
 
             // returns true if thing dies taking this damage
             bool TakeDamage(int value);
@@ -61,6 +67,7 @@ namespace game {
             inline void SetScale(float scale) { scale_ = scale; }
             void SetRotation(float angle);
             void SetType(ObjectType tp) { type_ = tp; }
+            inline void SetTexture(GLuint texture) { texture_ = texture; }
             // Velocity
             glm::vec3 GetVelocity(void) const { return velocity_; }
             void SetVelocity(glm::vec3& vel) { velocity_ = vel; }
@@ -73,6 +80,9 @@ namespace game {
             float yScale_;
             float xScale_;
             glm::vec3 velocity_;
+
+            bool invincible_;
+            Timer* powerup_timer_;
 
             Timer* death_timer_;
 
