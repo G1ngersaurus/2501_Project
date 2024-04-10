@@ -34,7 +34,7 @@ void SubEnemyObject::Update(double delta_time, glm::vec3 camera) {
 	//angle_ = glm::atan(-velocity_.y, velocity_.x);
 	if (alive_) {
 		if (docile_) {
-			velocity_ = glm::vec3(0.0f, 0.5f, 0.0f);
+			velocity_ = glm::vec3(0.0f, 0.3f, 0.0f);
 
 			if (position_.y < camera.y + 3) {
 				docile_ = false;

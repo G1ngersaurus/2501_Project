@@ -153,30 +153,6 @@ void Game::Setup(void)
     player->SetType(PlayerObj);
     game_objects_.push_back(player);
 
-    //// Setup other objects
-    //MineEnemyObject *enemy1 = new MineEnemyObject(glm::vec3(2.0f, 4.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, glm::vec3(2.0f, 6.0f, 0.0f));
-    ////enemy1->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
-    //enemy1->SetType(MineObj);
-    //game_objects_.push_back(enemy1);
-
-
-    //SharkEnemyObject* enemy2 = new SharkEnemyObject(glm::vec3(-2.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[12], 1.0f, 1.0f, 5);
-    //enemy2->SetTarget(player);
-    //enemy2->SetScale(2.0f);
-    //enemy2->SetType(SharkObj);
-    ////enemy1->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
-    //game_objects_.push_back(enemy2);
-
-    //SubEnemyObject* enemy3 = new SubEnemyObject(glm::vec3(-3.0f, 3.0f, 0.0f), sprite_, &sprite_shader_, tex_[13], 0.6f, 1.8f, 1);
-    //enemy3->SetTarget(player);
-    //enemy3->SetRotation(3* pi_over_two);
-    //enemy3->SetType(SubObj);
-    //game_objects_.push_back(enemy3);
-    
-
-    //game_objects_.push_back(new GameObject(glm::vec3(1.0f, -0.5f, 0.0f), sprite_, &sprite_shader_, tex_[2]));
-    //game_objects_[2]->SetRotation(pi_over_two);
-
     TextGameObject* text = new TextGameObject(camera_position_ + glm::vec3(-4.1f, -3.75f, -1.0f), sprite_, &text_shader_, tex_[10], 1.0f, 5.0f, 1);
     text->SetScale(0.5f);
     text->SetType(TimerObj);
@@ -439,58 +415,131 @@ void Game::Update(double delta_time)
     if (seconds_ > lastSecond_) {
         lastSecond_ = seconds_;
         if (fmod(lastSecond_, 10) == 0 && lastSecond_ > 0) {
-            
+            float pi_over_two = glm::pi<float>() / 2.0f;
             if (lastSecond_ == 10) {
-                MineEnemyObject* mine1 = new MineEnemyObject(camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f));
+                MineEnemyObject* mine1 = new MineEnemyObject(camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f));
                 mine1->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
                 mine1->SetType(MineObj);
                 game_objects_.insert(game_objects_.begin() + 1, mine1);
                 
-                MineEnemyObject* mine2 = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
+                MineEnemyObject* mine2 = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
                 mine2->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
                 mine2->SetType(MineObj);
                 game_objects_.insert(game_objects_.begin() + 1, mine2);
                 
             }
             else if (lastSecond_ == 20) {
-                MineEnemyObject* mine1 = new MineEnemyObject(camera_position_ + glm::vec3(-1.5f, 4.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f)); 
+                MineEnemyObject* mine1 = new MineEnemyObject(camera_position_ + glm::vec3(-1.5f, 4.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f)); 
                 mine1->SetVelocity(glm::vec3(0.0, 1.0, 0.0)); 
                 mine1->SetType(MineObj); 
                 game_objects_.insert(game_objects_.begin() + 1, mine1); 
 
-                MineEnemyObject* mine2 = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
+                MineEnemyObject* mine2 = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
                 mine2->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
                 mine2->SetType(MineObj);
                 game_objects_.insert(game_objects_.begin() + 1, mine2);
 
-                MineEnemyObject* mine3 = new MineEnemyObject(camera_position_ + glm::vec3(2.0f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(2.0f, 5.5f, 0.0f));
+                MineEnemyObject* mine3 = new MineEnemyObject(camera_position_ + glm::vec3(2.0f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(2.0f, 5.5f, 0.0f));
                 mine3->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
                 mine3->SetType(MineObj);
                 game_objects_.insert(game_objects_.begin() + 1, mine3);
 
-                MineEnemyObject* mine4 = new MineEnemyObject(camera_position_ + glm::vec3(1.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(1.0f, 6.0f, 0.0f));
+                MineEnemyObject* mine4 = new MineEnemyObject(camera_position_ + glm::vec3(1.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(1.0f, 6.0f, 0.0f));
                 mine4->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
                 mine4->SetType(MineObj);
                 game_objects_.insert(game_objects_.begin() + 1, mine4);
 
-                MineEnemyObject* mine5 = new MineEnemyObject(camera_position_ + glm::vec3(-2.5f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(-2.5f, 6.0f, 0.0f));
+                MineEnemyObject* mine5 = new MineEnemyObject(camera_position_ + glm::vec3(-2.5f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(-2.5f, 6.0f, 0.0f));
                 mine5->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
                 mine5->SetType(MineObj);
                 game_objects_.insert(game_objects_.begin() + 1, mine5);
 
-                MineEnemyObject* mine6 = new MineEnemyObject(camera_position_ + glm::vec3(2.5f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 1, camera_position_ + glm::vec3(2.5f, 5.5f, 0.0f));
+                MineEnemyObject* mine6 = new MineEnemyObject(camera_position_ + glm::vec3(2.5f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(2.5f, 5.5f, 0.0f));
                 mine6->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
                 mine6->SetType(MineObj);
                 game_objects_.insert(game_objects_.begin() + 1, mine6);
             }
             else if (lastSecond_ == 30) {
+                SubEnemyObject* sub1 = new SubEnemyObject(camera_position_ + glm::vec3(-2.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[13], 0.6f, 1.8f, 3);
+                sub1->SetTarget(player);
+                sub1->SetRotation(3* pi_over_two);
+                sub1->SetType(SubObj);
+                game_objects_.insert(game_objects_.begin() + 1, sub1);
+
+                SubEnemyObject* sub2 = new SubEnemyObject(camera_position_ + glm::vec3(2.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[13], 0.6f, 1.8f, 3);
+                sub2->SetTarget(player);
+                sub2->SetRotation(3* pi_over_two);
+                sub2->SetType(SubObj);
+                game_objects_.insert(game_objects_.begin() + 1, sub2);
 
             }
             else if (lastSecond_ == 40) {
+                SubEnemyObject* sub1 = new SubEnemyObject(camera_position_ + glm::vec3(-2.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[13], 0.6f, 1.8f, 3);
+                sub1->SetTarget(player);
+                sub1->SetRotation(3 * pi_over_two);
+                sub1->SetType(SubObj);
+                game_objects_.insert(game_objects_.begin() + 1, sub1);
 
+                SubEnemyObject* sub2 = new SubEnemyObject(camera_position_ + glm::vec3(2.0f, 6.0f, 0.0f), sprite_, &sprite_shader_, tex_[13], 0.6f, 1.8f, 3);
+                sub2->SetTarget(player);
+                sub2->SetRotation(3 * pi_over_two);
+                sub2->SetType(SubObj);
+                game_objects_.insert(game_objects_.begin() + 1, sub2);
+
+                MineEnemyObject* mine1 = new MineEnemyObject(camera_position_ + glm::vec3(-1.5f, 4.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(-1.0f, 4.0f, 0.0f));
+                mine1->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine1->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine1);
+
+                MineEnemyObject* mine2 = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
+                mine2->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine2->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine2);
+
+                MineEnemyObject* mine3 = new MineEnemyObject(camera_position_ + glm::vec3(2.0f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(2.0f, 5.5f, 0.0f));
+                mine3->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine3->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine3);
             }
             else if (lastSecond_ == 50) {
 
+                MineEnemyObject* mine1 = new MineEnemyObject(camera_position_ + glm::vec3(-1.5f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(-1.5f, 5.0f, 0.0f));
+                mine1->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine1->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine1);
+                
+                MineEnemyObject* mine2 = new MineEnemyObject(camera_position_ + glm::vec3(1.5f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(1.5f, 5.0f, 0.0f));
+                mine2->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine2->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine2);
+
+                MineEnemyObject* mine3 = new MineEnemyObject(camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f), sprite_, &sprite_shader_, tex_[11], 1.0f, 1.0f, 2, camera_position_ + glm::vec3(0.0f, 5.0f, 0.0f));
+                mine3->SetVelocity(glm::vec3(0.0, 1.0, 0.0));
+                mine3->SetType(MineObj);
+                game_objects_.insert(game_objects_.begin() + 1, mine3);
+
+                SubEnemyObject* sub1 = new SubEnemyObject(camera_position_ + glm::vec3(-3.0f, 7.5f, 0.0f), sprite_, &sprite_shader_, tex_[13], 0.6f, 1.8f, 3);
+                sub1->SetTarget(player);
+                sub1->SetRotation(3 * pi_over_two);
+                sub1->SetType(SubObj);
+                game_objects_.insert(game_objects_.begin() + 1, sub1);
+
+                SubEnemyObject* sub2 = new SubEnemyObject(camera_position_ + glm::vec3(0.0f, 7.0f, 0.0f), sprite_, &sprite_shader_, tex_[13], 0.6f, 1.8f, 3);
+                sub2->SetTarget(player);
+                sub2->SetRotation(3 * pi_over_two);
+                sub2->SetType(SubObj);
+                game_objects_.insert(game_objects_.begin() + 1, sub2);
+
+                SubEnemyObject* sub3 = new SubEnemyObject(camera_position_ + glm::vec3(2.0f, 7.5f, 0.0f), sprite_, &sprite_shader_, tex_[13], 0.6f, 1.8f, 3);
+                sub3->SetTarget(player);
+                sub3->SetRotation(3 * pi_over_two);
+                sub3->SetType(SubObj);
+                game_objects_.insert(game_objects_.begin() + 1, sub3);
+
+                ItemGameObject* repairs = new ItemGameObject(camera_position_ + glm::vec3(0.0f, 1.0f, 0.0f), sprite_, &sprite_shader_, tex_[20], 1.0f, 1.0f, 1);
+                repairs->SetItemType(RepairKit);
+                repairs->SetScale(0.75);
+                game_objects_.insert(game_objects_.begin() + 1, repairs);
             }
             else if (lastSecond_ == 60) {
 
@@ -508,7 +557,6 @@ void Game::Update(double delta_time)
 
             }
             else if (lastSecond_ == 120) {
-                float pi_over_two = glm::pi<float>() / 2.0f;
                 BossSubObject* boss = new BossSubObject(camera_position_ + glm::vec3(0.0f, 5.5f, 0.0f), sprite_, &sprite_shader_, tex_[19], 1.0f, 1.25f, 20);
                 boss->SetScale(8.0f);
                 boss->SetTarget(player);
@@ -878,9 +926,11 @@ void Game::Update(double delta_time)
             if (bullet->CheckCollision(player->GetPosition(), player->GetScale() * 0.6)) {
                 // Don't remove objects now
                 // Add them to a list to remove them later (code down below)
-                if (player->TakeDamage(1) == true) {
-                    
-                    player->GetDeath()->Start(1.0);
+                if (!player->GetInvincible()) {
+                    if (player->TakeDamage(1) == true) {
+
+                        player->GetDeath()->Start(1.0);
+                    }
                 }
                 //to_erase.push_back(bullet);
                 bullet->SetAlive(false);
@@ -896,10 +946,13 @@ void Game::Update(double delta_time)
            if (bullet->CheckCollision(player->GetPosition(), player->GetScale() * 0.6)) {
                // Don't remove objects now
                // Add them to a list to remove them later (code down below)
-               if (player->TakeDamage(3) == true) {
+               if (!player->GetInvincible()) {
+                   if (player->TakeDamage(3) == true) {
 
-                   player->GetDeath()->Start(1.0);
+                       player->GetDeath()->Start(1.0);
+                   }
                }
+               
                //to_erase.push_back(bullet);
                bullet->SetAlive(false);
                // If an intersection happened and objects will be removed,
@@ -919,9 +972,11 @@ void Game::Update(double delta_time)
                 if (distance < 0.9f) {
                     if (other_game_object->GetAlive()) {
                         if (other_game_object->GetType() == MineObj && current_game_object->GetType() == PlayerObj) {
-                            if (current_game_object->TakeDamage(5) == true) {
+                            if (!player->GetInvincible()) {
+                                if (current_game_object->TakeDamage(5) == true) {
 
-                                current_game_object->GetDeath()->Start(1.0);
+                                    current_game_object->GetDeath()->Start(1.0);
+                                }
                             }
                             //to_erase.push_back(other_game_object);
                             other_game_object->SetAlive(false);
@@ -935,9 +990,11 @@ void Game::Update(double delta_time)
 
                         }
                         else if ((other_game_object->GetType() == SharkObj || other_game_object->GetType() == SubObj) && current_game_object->GetType() == PlayerObj) {
-                            if (current_game_object->TakeDamage(2) == true) {
+                            if (!player->GetInvincible()) {
+                                if (current_game_object->TakeDamage(2) == true) {
 
-                                current_game_object->GetDeath()->Start(1.0);
+                                    current_game_object->GetDeath()->Start(1.0);
+                                }
                             }
                             //to_erase.push_back(other_game_object);
                             other_game_object->SetAlive(false);
@@ -962,7 +1019,6 @@ void Game::Update(double delta_time)
                                 other_game_object->SetAlive(false);
                             }
                             else if (item->GetItemType() == InvinciblePower) {
-                                std::cout << "Powerup" << std::endl;
                                 score_ += 500;
                                 player->PowerUp();
                                 player->SetTexture(tex_[18]);
